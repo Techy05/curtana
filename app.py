@@ -64,7 +64,7 @@ async def handler(event):
                         logo_html = f"<video style='border-radius: 10px;' height=255 autoplay loop muted playsinline><source src='https://curtana.glitch.me/{title}/logo.mp4' type='video/mp4'></video>"
                     rename(media, logo)
                     parse_template(title=title, text=parse_text(
-                        data[title]["text"][len(title)+1:]), logo=logo_html)
+                        data[title.lower()]["text"][len(title)+1:]), logo=logo_html)
     parsed_data = parse_data(data)
     parse_template(title="404.html")
     parse_template(title="index.html", roms=sorted(parsed_data[0][1:]), kernels=sorted(parsed_data[1][1:]), recoveries=sorted(
