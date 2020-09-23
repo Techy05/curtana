@@ -54,7 +54,7 @@ async def handler(event):
                     with open("index.bak", "w") as backup:
                         backup.write(index.read())
                 if title.lower() not in str(data.keys()).lower() or data[title.lower()]["date"] < message.date:
-                    data[title.lower()].update({"text": text, "date": message.date})
+                    data.update({title.lower(): {"text": text, "date": message.date}})
                     media = await client.download_media(message, f"surge/{title}/")
                     if media.endswith((".png", ".jpg", ".jpeg")):
                         logo = f"surge/{title}/logo.png"
