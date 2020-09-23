@@ -102,16 +102,16 @@ def parse_data(data):
     for title in data.items():
         value = title[1]["text"].lower()
         if "#rom" in value:
-            roms.append(title)
+            roms.append(title[0])
             roms[0] += 1
         elif "#blissrom" in value:
-            roms.append(title)
+            roms.append(title[0])
             roms[0] += 1
         elif "#kernel" in value:
-            kernels.append(title)
+            kernels.append(title[0])
             kernels[0] += 1
         elif "#recovery" in value:
-            recoveries.append(title)
+            recoveries.append(title[0])
             recoveries[0] += 1
     return [roms, kernels, recoveries]
 
