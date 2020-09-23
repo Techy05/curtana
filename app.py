@@ -53,8 +53,8 @@ async def handler(event):
                 with open("surge/index.html", "r") as index:
                     with open("index.bak", "w") as backup:
                         backup.write(index.read())
-                if title.lower() not in str(data.keys()).lower():
-                    data.update({title: text})
+                if title.lower() not in str(data.keys()).lower() or data[title.lower()]["date"] < message.date:
+                    data[title.lower()].update({"text": text, "date": message.date})
                     media = await client.download_media(message, f"surge/{title}/")
                     if media.endswith((".png", ".jpg", ".jpeg")):
                         logo = f"surge/{title}/logo.png"
@@ -64,7 +64,7 @@ async def handler(event):
                         logo_html = f"<video style='border-radius: 10px;' height=255 autoplay loop muted playsinline><source src='https://curtana.glitch.me/{title}/logo.mp4' type='video/mp4'></video>"
                     rename(media, logo)
                     parse_template(title=title, text=parse_text(
-                        data[title][len(title)+1:]), logo=logo_html)
+                        data[title]["text"][len(title)+1:]), logo=logo_html)
     parsed_data = parse_data(data)
     parse_template(title="404.html")
     parse_template(title="index.html", roms=sorted(parsed_data[0][1:]), kernels=sorted(parsed_data[1][1:]), recoveries=sorted(
@@ -99,8 +99,8 @@ def parse_data(data):
     roms = [0]
     kernels = [0]
     recoveries = [0]
-    for title, value in data.items():
-        value = value.lower()
+    for title in data.items():
+        value = title[1]["text"].lower()
         if "#rom" in value:
             roms.append(title)
             roms[0] += 1
