@@ -47,7 +47,7 @@ async def handler(event):
     messages = sorted(messages, key=bydate, reverse=True)
     for message in messages:
         if is_valid(message.text):
-        text = parse_text(message)
+            text = parse_text(message)
             xtitle = f"{text.split('#')[1].strip()}"
             title = xtitle[:1].upper() + xtitle[1:]
             if title not in Config.BLOCKED_UPDATES:
