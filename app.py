@@ -44,18 +44,18 @@ async def handler(event):
     for chat in chats:
         async for message in client.iter_messages(chat):
             messages.append(message)
-    messages = sorted(messages, key=bydate, reverse=True)
+    messages = sorted(messages, key=latest, reverse=True)
     for message in messages:
         if is_valid(message.text):
             text = parse_text(message)
-            xtitle = f"{text.split('#')[1].strip()}"
-            title = xtitle[:1].upper() + xtitle[1:]
+            initial = f"{text.split('#')[1].strip()}"
+            title = initial[:1].upper() + initial[1:]
             if title not in Config.BLOCKED_UPDATES:
                 with open("surge/index.html", "r") as index:
                     with open("index.bak", "w") as backup:
                         backup.write(index.read())
-                if title.lower() not in str(data.keys()).lower() or data[title]["date"] < message.date:
-                    data.update({title: {"text": text, "date": message.date}})
+                if title.lower() not in str(data.keys()).lower():
+                    data.update({title: text})
                     media = await client.download_media(message, f"surge/{title}/")
                     if media.endswith((".png", ".jpg", ".jpeg")):
                         logo = f"surge/{title}/logo.png"
@@ -84,15 +84,12 @@ async def handler(event):
 # Helpers
 def parse_text(msg):
     text = unparse(msg.message, msg.entities)
-
     changes = {"▪️": "> ", "\n": "\n<br>"}
     for a, b in changes.items():
         text = text.replace(a, b)
-
     for term in text.split():
         if term.startswith("@"):
             text = text.replace(term, f"<a href=\"http://t.me/{term[1:]}\">{term}</a>")
-    
     return text
 
 
@@ -101,7 +98,7 @@ def parse_data(data):
     kernels = [0]
     recoveries = [0]
     for title, value in data.items():
-        value = value["text"].lower()
+        value = value.lower()
         if "#rom" in value:
             roms.append(title)
             roms[0] += 1
@@ -132,7 +129,7 @@ def parse_template(title, **kwargs):
         f.write(static_template)
 
 
-def bydate(message):
+def latest(message):
     return message.date
 
 
