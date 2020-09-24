@@ -4,10 +4,10 @@
 from time import sleep
 from random import choice
 from shutil import rmtree
-from markdown import markdown
 from production import Config
 from datetime import date as datetime
 from subprocess import check_output, DEVNULL
+from telethon.extensions.html import unparse
 from os import rename, listdir, remove, path
 from jinja2 import Environment, FileSystemLoader
 
@@ -44,12 +44,13 @@ async def handler(event):
     for chat in chats:
         async for message in client.iter_messages(chat):
             messages.append(message)
+    messages = sorted(messages, key=bydate, reverse=True)
     for message in messages:
-        text = message.text if message.text is not None else ""
+        text = parse_text(message)
         if is_valid(text):
-            xtitle = f"{text.split()[0][1:]}"
+            xtitle = f"{text.split("#")[1].strip()}"
             title = xtitle[:1].upper() + xtitle[1:]
-            if title not in Config.BLOCKED_UPDATES:
+            if title.lower() not in Config.BLOCKED_UPDATES.lower():
                 with open("surge/index.html", "r") as index:
                     with open("index.bak", "w") as backup:
                         backup.write(index.read())
@@ -63,8 +64,7 @@ async def handler(event):
                         logo = f"surge/{title}/logo.mp4"
                         logo_html = f"<video style='border-radius: 10px;' height=255 autoplay loop muted playsinline><source src='https://curtana.glitch.me/{title}/logo.mp4' type='video/mp4'></video>"
                     rename(media, logo)
-                    parse_template(title=title, text=parse_text(
-                        data[title]["text"][len(title)+1:]), logo=logo_html)
+                    parse_template(title=title, text=text[len(title)+1:], logo=logo_html)
     parsed_data = parse_data(data)
     parse_template(title="404.html")
     parse_template(title="index.html", roms=sorted(parsed_data[0][1:]), kernels=sorted(parsed_data[1][1:]), recoveries=sorted(
@@ -82,16 +82,17 @@ async def handler(event):
 
 
 # Helpers
-def parse_text(text):
-    changes = {"**": "", "__": "", "`": "","▪️": "> ", "\n": "\n<br>"}
+def parse_text(msg):
+    text = unparse(msg.message, msg.entities)
+
+    changes = {"▪️": "> ", "\n": "\n<br>"}
     for a, b in changes.items():
         text = text.replace(a, b)
 
     for term in text.split():
         if term.startswith("@"):
-            text = text.replace(term, f"[{term}](https://t.me/{term[1:]})")
+            text = text.replace(term, f"<a href=\"http://t.me/{term[1:]}\">{term}</a>")
     
-    text = markdown(text)
     return text
 
 
@@ -129,6 +130,10 @@ def parse_template(title, **kwargs):
     static_template = template_object.render(**kwargs)
     with open(path, "w") as f:
         f.write(static_template)
+
+
+def bydate(message):
+    return message.date
 
 
 def is_valid(text):
