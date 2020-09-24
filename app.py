@@ -48,7 +48,7 @@ async def handler(event):
     for message in messages:
         text = parse_text(message)
         if is_valid(text):
-            xtitle = f"{text.split("#")[1].strip()}"
+            xtitle = f"{text.split('#')[1].strip()}"
             title = xtitle[:1].upper() + xtitle[1:]
             if title.lower() not in Config.BLOCKED_UPDATES.lower():
                 with open("surge/index.html", "r") as index:
