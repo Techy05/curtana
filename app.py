@@ -62,7 +62,7 @@ async def handler(event):
                         logo_html = f"<img src='https://realmeone.surge.sh/{title}/logo.png' height='255'>"
                     elif media.endswith((".mp4")):
                         logo = f"surge/{title}/logo.mp4"
-                        logo_html = f"<video style='border-radius: 10px;' height=255 autoplay loop muted playsinline><source src='https://curtana.glitch.me/{title}/logo.mp4' type='video/mp4'></video>"
+                        logo_html = f"<video style='border-radius: 10px;' height=255 autoplay loop muted playsinline><source src='https://realmeone.surge.sh/{title}/logo.mp4' type='video/mp4'></video>"
                     rename(media, logo)
                     parse_template(title=title, text=text[len(title)+1:], logo=logo_html)
     parsed_data = parse_data(data)
@@ -136,7 +136,8 @@ def bydate(message):
     return message.date
 
 
-def is_valid(text):
+def is_valid(msg):
+    text = msg if msg is not None else ""
     for req in Config.FILTERS:
         if f"#{req.lower()}" in text.lower():
             return True
