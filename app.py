@@ -50,7 +50,7 @@ async def handler(event):
         if is_valid(text):
             xtitle = f"{text.split('#')[1].strip()}"
             title = xtitle[:1].upper() + xtitle[1:]
-            if title.lower() not in Config.BLOCKED_UPDATES.lower():
+            if title not in Config.BLOCKED_UPDATES:
                 with open("surge/index.html", "r") as index:
                     with open("index.bak", "w") as backup:
                         backup.write(index.read())
